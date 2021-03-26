@@ -3,6 +3,9 @@ set -euo pipefail
 
 OSBUILD_COMPOSER_TEST_DATA=/usr/share/tests/osbuild-composer/
 
+# set workspace to /tmp to make gitlab happy
+WORKSPACE="${WORKSPACE:-/tmp}"
+
 # Get OS data.
 source /etc/os-release
 ARCH=$(uname -m)
