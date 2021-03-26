@@ -1,0 +1,211 @@
+stages:
+  - init
+  - rpmbuild
+  - test
+  - finish
+
+default:
+  after_script:
+    - schutzbot/update_github_status.sh update
+
+init:
+  stage: init
+  tags:
+    - shell
+  script:
+    - schutzbot/update_github_status.sh start
+
+F32 x86_64:
+  stage: rpmbuild
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-fedora-32-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - sh "schutzbot/mockbuild.sh"
+
+F32 x86_64 Base:
+  stage: test
+  needs:
+    ["F32 x86_64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-fedora-32-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/base_tests.sh
+
+F33 x86_64:
+  stage: rpmbuild
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-fedora-33-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+  - schutzbot/mockbuild.sh
+
+F33 x86_64 Base:
+  stage: test
+  needs:
+    ["F33 x86_64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-fedora-33-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/base_tests.sh
+
+F33 x86_64 ostree:
+  stage: test
+  needs:
+    ["F33 x86_64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "openstack-fedora-33-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/ostree.sh
+
+CS8 x86_64:
+  stage: rpmbuild
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-centos-stream-8-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/mockbuild.sh
+
+CS8 x86_64 Base:
+  stage: test
+  needs:
+    ["CS8 x86_64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-centos-stream-8-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/base_tests.sh
+
+EL8 x86_64:
+  stage: rpmbuild
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-rhel-8-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/mockbuild.sh
+
+EL8 x86_64 Base:
+  stage: test
+  needs:
+    ["EL8 x86_64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-rhel-8-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/base_tests.sh
+
+
+EL8 x86_64 ostree:
+  stage: test
+  needs:
+    ["EL8 x86_64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "openstack-rhel-8-x86_64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/ostree.sh
+
+F33 aarch64:
+  stage: rpmbuild
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-fedora-33-aarch64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/mockbuild.sh
+
+F33 aarch64 Base:
+  stage: test
+  needs:
+    ["F33 aarch64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-fedora-33-aarch64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/base_tests.sh
+
+CS8 aarch64:
+  stage: rpmbuild
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-centos-stream-8-aarch64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/mockbuild.sh
+
+CS8 aarch64 Base:
+  stage: test
+  needs:
+    ["CS8 aarch64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-centos-stream-8-aarch64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/base_tests.sh
+
+finish:
+  stage: finish
+  tags:
+    - shell
+  script:
+    - schutzbot/update_github_status.sh finish
+
+EL8 aarch64:
+  stage: rpmbuild
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-rhel-8-aarch64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/mockbuild.sh
+
+EL8 aarch64 Base:
+  stage: test
+  needs:
+    ["EL8 aarch64"]
+  tags:
+    - terraform
+  variables:
+    RUNNER: "aws-rhel-8-aarch64"
+    EXTRA_REPO_PATH_SEGMENT: "gitlab/"
+  script:
+    - schutzbot/deploy.sh
+    - /usr/libexec/tests/osbuild-composer/base_tests.sh
