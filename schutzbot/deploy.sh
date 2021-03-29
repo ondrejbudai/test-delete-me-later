@@ -35,11 +35,19 @@ function setup_repo {
   local project=$1
   local commit=$2
   local priority=${3:-10}
+
+  local extra_repo_path_segment_local=""
+  if [[ "$project" == "osbuild-composer" ]]; then
+    # Used in the gitlab CI proof of concept so it can upload its rpms to
+    # a different location.
+    extra_repo_path_segment_local="${EXTRA_REPO_PATH_SEGMENT:-}"
+  fi
+
   greenprint "Setting up dnf repository for ${project} ${commit}"
   sudo tee "/etc/yum.repos.d/${project}.repo" << EOF
 [${project}]
 name=${project} ${commit}
-baseurl=http://osbuild-composer-repos.s3-website.us-east-2.amazonaws.com/${project}/${ID}-${VERSION_ID}/${ARCH}/${commit}
+baseurl=http://osbuild-composer-repos.s3-website.us-east-2.amazonaws.com/${extra_repo_path_segment_local}${project}/${ID}-${VERSION_ID}/${ARCH}/${commit}
 enabled=1
 gpgcheck=0
 priority=${priority}
@@ -50,7 +58,7 @@ EOF
 source /etc/os-release
 ARCH=$(uname -m)
 
-if [[ -n "${RHN_REGISTRATION_SCRIPT:-}" ]] && ! sudo subscription-manager status; then
+if [[ $ID == "rhel" && -n "${RHN_REGISTRATION_SCRIPT:-}" ]] && ! sudo subscription-manager status; then
     greenprint "Registering RHEL"
     sudo chmod +x "$RHN_REGISTRATION_SCRIPT"
     sudo "$RHN_REGISTRATION_SCRIPT"
@@ -64,6 +72,9 @@ cat schutzbot/team_ssh_keys.txt | tee -a ~/.ssh/authorized_keys > /dev/null
 
 # TODO: include this in the jenkins runner (and split test/target machines out)
 sudo dnf -y install jq
+
+# fallback for gitlab
+GIT_COMMIT="${GIT_COMMIT:-${CI_COMMIT_SHA}}"
 
 setup_repo osbuild-composer "${GIT_COMMIT}" 5
 

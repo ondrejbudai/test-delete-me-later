@@ -3,6 +3,9 @@ set -euo pipefail
 
 OSBUILD_COMPOSER_TEST_DATA=/usr/share/tests/osbuild-composer/
 
+# set workspace to /tmp to make gitlab happy
+WORKSPACE="${WORKSPACE:-/tmp}"
+
 # Get OS data.
 source /etc/os-release
 ARCH=$(uname -m)
@@ -190,7 +193,7 @@ build_image() {
     fi
 
     # Stop watching the worker journal.
-    sudo kill ${WORKER_JOURNAL_PID}
+    sudo pkill -P ${WORKER_JOURNAL_PID}
 }
 
 # Wait for the ssh server up to be.
