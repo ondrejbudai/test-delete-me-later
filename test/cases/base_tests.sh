@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+ARCH=$(uname -m)
+
+if [[ $ARCH == "aarch64" ]]; then
+  echo just testing
+  exit 1
+fi
+
 WORKING_DIRECTORY=/usr/libexec/osbuild-composer
 TESTS_PATH=/usr/libexec/osbuild-composer-test
 mkdir --parents /tmp/logs
