@@ -4,9 +4,16 @@ stages:
   - test
   - finish
 
-default:
+.terraform:
   after_script:
     - schutzbot/update_github_status.sh update
+    - schutzbot/save_journal.sh
+  tags:
+    - terraform
+  artifacts:
+    paths:
+      - journal-log
+    when: always
 
 init:
   stage: init
@@ -17,8 +24,7 @@ init:
 
 F32 x86_64:
   stage: rpmbuild
-  tags:
-    - terraform
+  extends: .terraform
   variables:
     RUNNER: "aws-fedora-32-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -27,10 +33,9 @@ F32 x86_64:
 
 F32 x86_64 Base:
   stage: test
+  extends: .terraform
   needs:
     ["F32 x86_64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "aws-fedora-32-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -40,8 +45,7 @@ F32 x86_64 Base:
 
 F33 x86_64:
   stage: rpmbuild
-  tags:
-    - terraform
+  extends: .terraform
   variables:
     RUNNER: "aws-fedora-33-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -50,10 +54,9 @@ F33 x86_64:
 
 F33 x86_64 Base:
   stage: test
+  extends: .terraform
   needs:
     ["F33 x86_64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "aws-fedora-33-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -63,10 +66,9 @@ F33 x86_64 Base:
 
 F33 x86_64 ostree:
   stage: test
+  extends: .terraform
   needs:
     ["F33 x86_64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "openstack-fedora-33-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -76,8 +78,7 @@ F33 x86_64 ostree:
 
 CS8 x86_64:
   stage: rpmbuild
-  tags:
-    - terraform
+  extends: .terraform
   variables:
     RUNNER: "aws-centos-stream-8-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -86,10 +87,9 @@ CS8 x86_64:
 
 CS8 x86_64 Base:
   stage: test
+  extends: .terraform
   needs:
     ["CS8 x86_64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "aws-centos-stream-8-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -99,8 +99,7 @@ CS8 x86_64 Base:
 
 EL8 x86_64:
   stage: rpmbuild
-  tags:
-    - terraform
+  extends: .terraform
   variables:
     RUNNER: "aws-rhel-8-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -109,10 +108,9 @@ EL8 x86_64:
 
 EL8 x86_64 Base:
   stage: test
+  extends: .terraform
   needs:
     ["EL8 x86_64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "aws-rhel-8-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -123,10 +121,9 @@ EL8 x86_64 Base:
 
 EL8 x86_64 ostree:
   stage: test
+  extends: .terraform
   needs:
     ["EL8 x86_64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "openstack-rhel-8-x86_64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -136,8 +133,7 @@ EL8 x86_64 ostree:
 
 F33 aarch64:
   stage: rpmbuild
-  tags:
-    - terraform
+  extends: .terraform
   variables:
     RUNNER: "aws-fedora-33-aarch64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -146,10 +142,9 @@ F33 aarch64:
 
 F33 aarch64 Base:
   stage: test
+  extends: .terraform
   needs:
     ["F33 aarch64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "aws-fedora-33-aarch64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -159,8 +154,7 @@ F33 aarch64 Base:
 
 CS8 aarch64:
   stage: rpmbuild
-  tags:
-    - terraform
+  extends: .terraform
   variables:
     RUNNER: "aws-centos-stream-8-aarch64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -169,10 +163,9 @@ CS8 aarch64:
 
 CS8 aarch64 Base:
   stage: test
+  extends: .terraform
   needs:
     ["CS8 aarch64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "aws-centos-stream-8-aarch64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -180,17 +173,10 @@ CS8 aarch64 Base:
     - schutzbot/deploy.sh
     - /usr/libexec/tests/osbuild-composer/base_tests.sh
 
-finish:
-  stage: finish
-  tags:
-    - shell
-  script:
-    - schutzbot/update_github_status.sh finish
 
 EL8 aarch64:
   stage: rpmbuild
-  tags:
-    - terraform
+  extends: .terraform
   variables:
     RUNNER: "aws-rhel-8-aarch64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
@@ -199,13 +185,20 @@ EL8 aarch64:
 
 EL8 aarch64 Base:
   stage: test
+  extends: .terraform
   needs:
     ["EL8 aarch64"]
-  tags:
-    - terraform
   variables:
     RUNNER: "aws-rhel-8-aarch64"
     EXTRA_REPO_PATH_SEGMENT: "gitlab/"
   script:
     - schutzbot/deploy.sh
     - /usr/libexec/tests/osbuild-composer/base_tests.sh
+
+finish:
+  stage: finish
+  extends: .terraform
+  tags:
+    - shell
+  script:
+    - schutzbot/update_github_status.sh finish
