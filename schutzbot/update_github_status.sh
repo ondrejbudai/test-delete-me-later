@@ -25,5 +25,5 @@ curl \
     -u "${SCHUTZBOT_LOGIN}" \
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
-    "https://api.github.com/repos/osbuild/osbuild-composer/statuses/${CI_COMMIT_SHA}" \
+    "https://api.github.com/repos/osbuild/test-delete-me-later/statuses/${CI_COMMIT_SHA}" \
     -d '{"state":"'"${GITHUB_NEW_STATE}"'", "description": "'"${GITHUB_NEW_DESC}"'", "context": "Schutzbot from GitLab", "target_url": "'"${CI_PIPELINE_URL}"'"}'
