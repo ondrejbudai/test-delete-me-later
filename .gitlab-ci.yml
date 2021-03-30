@@ -5,6 +5,8 @@ stages:
   - finish
 
 .terraform:
+  before_script:
+    - schutzbot/update_github_status.sh start
   after_script:
     - schutzbot/update_github_status.sh update
     - schutzbot/save_journal.sh
